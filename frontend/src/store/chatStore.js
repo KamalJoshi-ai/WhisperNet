@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { getSocket } from "../services/chat.service";
 import axiosInstance from "../services/url.service";
 
 // ===== CONSTANTS =====
@@ -18,12 +17,13 @@ const SOCKET_EVENTS = {
 
 // ===== ZUSTAND STORE =====
 const useChatStore = create((set, get) => {
-  let socketListenersInitialized = false; // Flag to prevent duplicate initialization
+    // Flag to prevent duplicate initialization
 
   return {
     // ===== STATE =====
     conversations: { data: [] },
     currentUser: null,
+    socketListenersInitialized : false,
     currentConversation: null,
     messages: [],
     loading: false,
@@ -33,23 +33,29 @@ const useChatStore = create((set, get) => {
     newUsers: new Map(),
     typingUsers: new Map(),
     socket: null,
+    socket: null,
+     
     messageCache: new Map(), // Track all received messages globally
 
     // ===== SETTERS =====
     setContact: (user) => set({ contact: user }),
     setCurrentUser: (user) => set({ currentUser: user }),
     setCurrentConversation: (id) => set({ currentConversation: id }),
-
+    setSocket: (s) => set({ socket: s }),
+    clearSocket: () => set({ socket: null }),
     // ===== SOCKET INITIALIZATION =====
     initsocketListeners: () => {
+      const socketListenersInitialized=get().socketListenersInitialized
       // Prevent duplicate listener initialization
       if (socketListenersInitialized) return;
 
-      const socket = getSocket();
+      const socket = get().socket;
+
       if (!socket) return;
 
       set({ socket });
-      socketListenersInitialized = true;
+
+       set({ socketListenersInitialized: true }); 
 
       // ===== ONLINE USERS =====
       socket.on(SOCKET_EVENTS.ONLINE_USERS, (users) => {
@@ -461,7 +467,7 @@ const useChatStore = create((set, get) => {
 
     // ===== ADD REACTION =====
     addReaction: async (messageId, emoji) => {
-      const socket = getSocket();
+      const socket = get().socket
       const { currentUser } = get();
 
       if (socket && currentUser) {
@@ -476,7 +482,7 @@ const useChatStore = create((set, get) => {
     // ===== START TYPING =====
     startTyping: (receiverId) => {
       const { currentConversation } = get();
-      const socket = getSocket();
+      const socket = get().socket
 
       if (socket && currentConversation && receiverId) {
         socket.emit("typing_start", {
@@ -489,7 +495,7 @@ const useChatStore = create((set, get) => {
     // ===== STOP TYPING =====
     stopTyping: (receiverId) => {
       const { currentConversation } = get();
-      const socket = getSocket();
+      const socket = get().socket
 
       if (socket && currentConversation && receiverId) {
         socket.emit("typing_stop", {
@@ -528,7 +534,7 @@ const useChatStore = create((set, get) => {
 
     // ===== CLEANUP (e.g., on logout) =====
     cleanup: () => {
-      socketListenersInitialized = false; // Reset flag
+       set({ socketListenersInitialized: false }); 
       set({
         conversations: { data: [] },
         currentConversation: null,
@@ -559,8 +565,6 @@ export default useChatStore;
 
 
 
-
-// import {create} from 'zustand'
 // import {getSocket} from '../services/chat.service'
 // import axiosInstance from '../services/url.service'
 // const useChatStore = create((set, get) => ({

@@ -101,7 +101,7 @@ const Login = () => {
         ...data,
         dialCode: selectedCountry?.dialCode || null,
       });
-
+ 
       setStep(2);
     } catch (err) {
       console.error(err);
@@ -131,6 +131,7 @@ const Login = () => {
         toast.success("OTP verified");
 
         const user = response.data?.user;
+        
         if (user?.username && user?.ProfilePicture) {
           setUser(user);
           toast.success("Welcome back to Talkio");

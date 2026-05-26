@@ -6,7 +6,7 @@ import ChatWindow from "../ChatSection/ChatWindow";
 import Sidebar from "../components2/Sidebar";
 import { FaBars, FaTimes } from "react-icons/fa";
 
-const Layout = ({ children, isStatusPreviewOpen, statusPreviewContent }) => {
+const Layout = ({ children }) => {
   const { setSelectedContact, selectedContact } = useLayoutStore();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -24,11 +24,7 @@ const Layout = ({ children, isStatusPreviewOpen, statusPreviewContent }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close mobile sidebar when navigating
-  useEffect(() => {
-    setIsMobileSidebarOpen(false);
-  }, [selectedContact]);
-
+  
   return (
     <div
       className={`h-screen w-screen flex overflow-hidden ${
@@ -72,10 +68,10 @@ const Layout = ({ children, isStatusPreviewOpen, statusPreviewContent }) => {
               <Sidebar
                 isCollapsed={false}
                 setIsCollapsed={() => {}}
-                isMobileDrawer
                 onClose={() => setIsMobileSidebarOpen(false)}
               />
             </motion.div>
+
           </>
         )}
       </AnimatePresence>
@@ -183,21 +179,7 @@ const Layout = ({ children, isStatusPreviewOpen, statusPreviewContent }) => {
         </AnimatePresence>
       </div>
 
-      {/* Status Preview Overlay */}
-      <AnimatePresence>
-        {isStatusPreviewOpen && (
-          <motion.div
-            key="status-preview"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-sm"
-          >
-            {statusPreviewContent}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
     </div>
   );
 };

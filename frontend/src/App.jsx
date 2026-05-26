@@ -3,7 +3,7 @@ import Login from "./pages/user-login/Login";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/components2/HomePage";
-
+import Help from "./pages/components2/Help.jsx"
 import UserDetail from "./pages/components2/UserDetail.jsx";
 import Status from "./pages/StatusSection/Status.jsx";
 import Settings from "./pages/SettingSection/Settings.jsx";
@@ -14,6 +14,7 @@ import {
   initailizeSocket,
 } from "./services/chat.service.jsx";
 import useChatStore from "./store/chatStore.js";
+
 const App = () => {
   const { user } = useUserStore();
   const { setCurrentUser, initsocketListeners } = useChatStore();
@@ -23,7 +24,7 @@ const App = () => {
       const socket = initailizeSocket(user);
 
       if (socket) {
-        setCurrentUser(user);
+        setCurrentUser(user); 
         initsocketListeners();
       }
     }
@@ -47,6 +48,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/user-profile" element={<UserDetail />} />
+            <Route path="/help" element={<Help/>}/>
             <Route path="/status" element={<Status />} />
             <Route path="/setting" element={<Settings />} />
           </Route>

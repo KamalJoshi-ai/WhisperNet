@@ -32,7 +32,7 @@ export default function CountrySelect({ theme }) {
             alt={selectedCountry?.name || countries[46].name}
             className="w-6 h-4 object-cover rounded-sm"
           />
-          {selectedCountry?.dialCode || countries[43].dialCode}
+          {selectedCountry?.dialCode || countries[46].dialCode}
         </span>
         <FaChevronDown className="ml-2 cursor-pointer" />
       </button>
@@ -70,7 +70,7 @@ export default function CountrySelect({ theme }) {
                 <li
                   key={country.code}
                   onClick={() => {
-                    setSelectedCountry(country); // ✅ store me save
+                    setSelectedCountry(country); 
                     setIsOpen(false);
                     setSearch("");
                   }}

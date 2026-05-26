@@ -138,6 +138,8 @@ const ChatList = ({ contacts }) => {
           </div>
         )}
       </div>
+
+      
     </div>
   );
 }

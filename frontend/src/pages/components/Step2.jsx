@@ -11,11 +11,8 @@ import useLoginStore from "../../store/useLoginStore";
 const Step2OTP = ({
   theme,
   loginForm,
-  setLoading,
-  onLoginSubmit,
   userPhoneData,
   selectedCountry,
-  setUserPhoneData,
   otpRegister,
   otpErrors,
   loading,
@@ -61,7 +58,7 @@ const Step2OTP = ({
     >
       <p
         className={`text-center ${
-          theme === "dark" ? "text-gray-300" : "text-gray-400"
+          theme === "dark" ? "text-gray-300" : "text-gray-600"
         }`}
       >
         Enter the 6-digit OTP sent to your number/email
@@ -90,7 +87,7 @@ const Step2OTP = ({
           loginForm.reset(); // form reset
           setStep(1); // go back to step 1
         }}
-        className="mb-2 text-sm text-blue-600 hover:underline cursor-pointer "
+        className="mb-2 text-sm text-gray-400 hover:underline hover:text-blue-400 cursor-pointer "
       >
         Change Email / Phone
       </button>
@@ -113,6 +110,7 @@ const Step2OTP = ({
         >
           {resendLoading ? <Spinner /> : "Resend OTP"}
         </button>
+        
       </div>
     </motion.form>
   );

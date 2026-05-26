@@ -33,7 +33,7 @@ export const ProtectedRoute = () => {
  if (isChecking) return <Spinner />;
 
   if (!isAuthenticated)
-    return <Navigate to="/user-login" state={{ from: location }} replace />;
+    return <Navigate to="/user-login"  replace />;
 //use Navigate when redirect, condition and no event     while     use navigate function
 //of useNavigate() while dealing with events 
   return <Outlet />;

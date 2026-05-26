@@ -6,12 +6,11 @@ const useThemeStore = create(
     (set) => ({
       theme:'dark',
       setTheme:(theme)=>set({theme})
-
     }),
     {
       name: "theme-storage",
        // key for localStorage
-getStorage:()=>localStorage
+         getStorage:()=>localStorage
        })
     )
     

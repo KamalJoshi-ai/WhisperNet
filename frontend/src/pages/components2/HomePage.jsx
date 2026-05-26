@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import Layout from './Layout'
-import {motion} from 'framer-motion'
-import ChatList from '../ChatSection/ChatList'
-import { getAllUsers }from "../../services/user.service";
+import React, { useEffect, useState } from "react";
+import Layout from "./Layout";
+import { motion } from "framer-motion";
+import ChatList from "../ChatSection/ChatList";
+import { getAllUsers } from "../../services/user.service";
+import useThemeStore from "../../store/themeStore";
 const HomePage = () => {
-  const [allUsers,setAllUsers]=useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
-  const getAllUser=async()=>{
-    try{
-const result = await getAllUsers();
+  const getAllUser = async () => {
+    try {
+      const result = await getAllUsers();
 
-if(result.status==='success'){
-  setAllUsers(result.data)
-}
- //result.data is an array of user 
+      if (result.status === "success") {
+        setAllUsers(result.data);
+      }
+      //result.data is an array of user
 
- /*
+      /*
 
 [
   {
@@ -55,31 +58,44 @@ if(result.status==='success'){
 
 
  */
+    } catch (error) {
+      console.log(error);
     }
-    catch(error){
-console.log(error)
-    }
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     getAllUser();
-  
-  },[])
+  }, []);
 
   return (
-    <Layout>
-      <motion.div
-      initial= {{opacity:0}}
-      animate= {{opacity:1}}
-      transform ={{duration:0.5}}
-      className='h-full'
+    <div className="h-full flex flex-col">
+      {/* Banner at full width top */}
+      <div
+        className={`w-full px-4 py-2 border-b ${
+          isDark ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-white"
+        } flex justify-center`}
       >
-        
-      <ChatList contacts={allUsers} />
- 
-      </motion.div>
-    </Layout>
-  )
-}
+        <span
+          className={`text-base font-semibold tracking-wide ${
+            isDark ? "text-gray-200" : "text-gray-700"
+          }`}
+        >
+          WhisperNet — Fast & Secure Chat
+        </span>
+      </div>
 
-export default HomePage
+      {/* Layout occupies 1/3 (sidebar etc.) */}
+      <Layout>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="h-full"
+        >
+          <ChatList contacts={allUsers} />
+        </motion.div>
+      </Layout>
+    </div>
+  );
+};
+export default HomePage;

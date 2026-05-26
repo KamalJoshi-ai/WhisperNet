@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import EmailInput from "../user-login/EmailInput";
 import Spinner from "../../utils/Spinner";

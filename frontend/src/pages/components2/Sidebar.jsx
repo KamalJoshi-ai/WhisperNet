@@ -61,6 +61,12 @@ const Sidebar = ({
   return (
     // Outer wrapper keeps toggle button from being clipped
     <div className="relative flex-shrink-0 h-full" style={{ zIndex: 40 }}>
+    
+
+
+
+
+    
       <motion.div
         animate={{ width: isCollapsed ? 64 : 240 }}
         initial={{ width: isMobileDrawer ? 240 : isCollapsed ? 64 : 240 }}
@@ -257,6 +263,10 @@ const Sidebar = ({
           <FaTimes size={12} />
         </button>
       )}
+
+
+
+      
     </div>
   );
 };
