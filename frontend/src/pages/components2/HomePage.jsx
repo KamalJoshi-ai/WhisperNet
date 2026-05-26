@@ -84,7 +84,6 @@ const HomePage = () => {
         </span>
       </div>
 
-      {/* Layout occupies 1/3 (sidebar etc.) */}
       <Layout>
         <motion.div
           initial={{ opacity: 0 }}
