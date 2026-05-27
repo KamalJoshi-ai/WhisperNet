@@ -68,10 +68,10 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-screen w-full flex flex-col">
       {/* Banner at full width top */}
       <div
-        className={`w-full px-4 py-2 border-b ${
+        className={`w-screen px-4 py-2 border-b ${
           isDark ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-white"
         } flex justify-center`}
       >

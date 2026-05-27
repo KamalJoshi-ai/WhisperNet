@@ -127,7 +127,7 @@ const Layout = ({ children }) => {
                 </div>
               )}
 
-              <div className={`flex-1 overflow-y-auto ${isMobile ? "pb-4" : ""}`}>
+              <div className={`flex-1 overflow-y-auto scrollbar-hide   ${isMobile ? "pb-4" : ""}`}>
                 {children}
               </div>
             </motion.div>
@@ -142,7 +142,7 @@ const Layout = ({ children }) => {
               exit={{ x: "100%", opacity: 0 }}
               transition={{ type: "tween", ease: "easeInOut", duration: 0.28 }}
               className={`
-                flex-1 h-full overflow-hidden
+                w-full h-full overflow-hidden
                 ${isMobile ? "absolute inset-0 z-20" : ""}
                 ${isDark ? "bg-gray-800" : "bg-gray-50"}
               `}
