@@ -1,6 +1,5 @@
 // implement refresh and access token
 
-
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -58,11 +57,6 @@ app.use("/api/auth", authRoute);
 app.use("/api/chat", chatRoute)
 app.use("/api/status", statusRoute);
 
-
-app.post("/", (req, res) => {
-  res.status(200).send("POST request received");
- 
-});
 
 const PORT = process.env.PORT;
 

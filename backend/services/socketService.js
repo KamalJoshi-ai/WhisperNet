@@ -17,7 +17,7 @@ const initializeSocket = (server) => {
   });
 
 
-  io.on("connection", (socket) => {
+io.on("connection", (socket) => {
 
     let userId = null;
 
