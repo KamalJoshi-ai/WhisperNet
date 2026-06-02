@@ -110,6 +110,7 @@ if (!isOtpValid) return response(res, 400, "Invalid OTP Bcrypt");
 };
 
 const updateProfile = async(req,res)=>{
+
   const {username,agreed,about}=req.body;
   const userId = req.user.userId;
   try {
@@ -139,7 +140,9 @@ const updateProfile = async(req,res)=>{
 
 const logout = async (req,res)=>{
   try {
-    res.cookie("authToken", "", { expires: new Date(0) });
+res.clearCookie("authToken", {
+  httpOnly: true,
+});
     return response(res,200,"user logout successfully")
   } catch (error) {
     console.error(error);

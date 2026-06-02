@@ -13,5 +13,3 @@ router.get('/logout',authController.logout)
 router.get('/check-auth',authMiddleWare,authController.checkAuthenticated)
 router.get('/users',authMiddleWare,authController.getAllUsers)
 module.exports=router;
-// export {router}
-// export const router

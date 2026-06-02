@@ -4,7 +4,7 @@ const serviceSId = process.env.TWILLO_SERVICE_SID;
 const accountID = process.env.TWILLO_ACCOUNT_SID;
 const authToken = process.env.TWILLO_AUTH_TOKEN;
 
-// ✅ Always check env variables
+
 if (!serviceSId || !accountID || !authToken) {
   throw new Error("Missing Twilio environment variables");
 }
