@@ -14,13 +14,14 @@ const initializeSocket = (server) => {
       methods: ["GET", "PUT", "POST", "DELETE"],
     },
     pingTimeout: 60000,
+    pingInterval:30000,
   });
 
 
 io.on("connection", (socket) => {
-
-    let userId = null;
-
+  
+  let userId = null;
+  
     // ─── User Connects ───────────────────────────────────────────
     socket.on("user_connected", async (connectingUserId) => {
       try {
@@ -33,13 +34,12 @@ io.on("connection", (socket) => {
           lastSeen: null,
         });
 
-        socket.join(userId);
+        socket.join(userId); //socket.join("user_65cbd123")
 
         await User.findByIdAndUpdate(
           userId,
           { isOnline: true, lastSeen: null },
-          { new: true }
-        );
+                 );
 
         io.emit("user_status", {
           userId,
@@ -216,7 +216,8 @@ io.on("connection", (socket) => {
     });
 
     // ─── Disconnect ───────────────────────────────────────────────
-    const handleDisconnected = async () => {
+
+    socket.on("disconnect", async () => {
       if (!userId) return;
 
       try {
@@ -235,7 +236,7 @@ io.on("connection", (socket) => {
           lastSeen: new Date(),
         });
 
-        io.emit("user_status", {   // ✅ consistent event name (was "Offline")
+        io.emit("user_status", {   
           userId,
           isOnline: false,
           lastSeen: new Date(),
@@ -246,11 +247,10 @@ io.on("connection", (socket) => {
       } catch (error) {
         console.error("Error handling disconnection", error);
       }
-    };
-
-    socket.on("disconnect", handleDisconnected);
+    });
 
     io.socketUserMap = onlineUsers;
+
   });
 
   return io;

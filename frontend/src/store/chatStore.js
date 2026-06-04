@@ -519,7 +519,6 @@ const useChatStore = create((set, get) => {
     // ===== CHECK IF USER IS ONLINE =====
     isUserOnline: (userId) => {
       if (!userId) return false;
-
       const { onlineUsers } = get();
       return onlineUsers.get(userId)?.isOnline || false;
     },

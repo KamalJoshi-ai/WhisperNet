@@ -19,27 +19,26 @@ const messageSchema = new mongoose.Schema(
     },
     content: { type: String },
     imageOrVideoUrl: { type: String },
-   contentType: { 
-  type: String, 
-  enum: ["image", "video", "text", "file"] 
-},
+    contentType: {
+      type: String,
+      enum: ["image", "video", "text", "file"],
+    },
 
-fileType: { type: String },   // pdf, doc, zip, etc
+    fileType: { type: String }, // pdf, doc, zip, etc
 
-fileName: { type: String },
+    fileName: { type: String },
     reactions: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        emoji:String,
-        
+        emoji: String,
       },
     ],
 
-    messageStatus:{type:String,default:'send'}
+    messageStatus: { type: String, default: "send" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Message = mongoose.model("Message",messageSchema);
+const Message = mongoose.model("Message", messageSchema);
 
 module.exports = Message;

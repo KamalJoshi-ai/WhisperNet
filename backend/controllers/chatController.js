@@ -9,54 +9,51 @@ const Message = require("../models/Messages");
 
 
 
+// {
+//   fieldname: 'media',
+//   originalname: 'sunset.jpg',
+//   encoding: '7bit',
+//   mimetype: 'image/jpeg',
+//   destination: 'uploads/',
+//   filename: 'c6194b1a205d6b4122d3a3d5e20acda3', // Saved filename
+//   path: 'uploads/c6194b1a205d6b4122d3a3d5e20acda3', // Full path to file
+//   size: 345218
+// }
+
+const fs = require('fs');
 
 exports.sendMessage = async (req, res) => {
   try {
-    const { senderId, receiverId, content, messageStatus } = req.body;
-
+    const { senderId, receiverId, content, messageStatus = "send" } = req.body;
     const file = req?.file;
-//     req.file = {
-//   fieldname: 'media',
-//   originalname: 'photo.png',
-//   encoding: '7bit',
-//   mimetype: 'image/png',
-//   destination: 'uploads/',
-//   filename: '9f1c8a0b3a7d2c9e',
-//   path: 'uploads/9f1c8a0b3a7d2c9e',
-//   size: 234567
-// }
 
     const participants = [senderId, receiverId].sort();
-    //Check if Conversation already exists
-    let conversation = await Conversation.findOne({
-      participants: participants,
-    });
-
+    
+    let conversation = await Conversation.findOne({ participants });
     if (!conversation) {
       conversation = new Conversation({ participants });
-      await conversation.save();
     }
-
+  
     let imageOrVideoUrl = null;
     let contentType = null;
-
+  
     if (file) {
       const uploadFile = await uploadToCloudinary(file);
+      
+      if (file.path && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+
       if (!uploadFile?.secure_url) {
         return response(res, 400, "Failed to upload media");
       }
-      imageOrVideoUrl = uploadFile?.secure_url;
-const mime = file.mimetype;
+      
+      imageOrVideoUrl = uploadFile.secure_url;
+      const mime = file.mimetype;
 
-if (mime.startsWith("image/")) {
-  contentType = "image";
-} 
-else if (mime.startsWith("video/")) {
-  contentType = "video";
-} 
-else {
-  contentType = "file";
-}
+      if (mime.startsWith("image/")) contentType = "image";
+      else if (mime.startsWith("video/")) contentType = "video";
+      else contentType = "file";
 
     } else if (content?.trim()) {
       contentType = "text";
@@ -64,56 +61,57 @@ else {
       return response(res, 400, "Message content is required");
     }
 
-    const message = new Message({
-  conversation: conversation?._id,
-  content,
-  contentType,
-  fileType: file ? file.mimetype.split("/")[1] : null,
-  fileName: file ? file.originalname : null,
-  imageOrVideoUrl,
-  sender: senderId,
-  receiver: receiverId,
-  messageStatus,
-});
-    await message.save();
-    if (message?.content) {
-      conversation.lastMessage = message?._id;
+    let finalStatus = messageStatus;
+    const receiverSocketId = req.socketUserMap?.get(receiverId)?.socketId;
+    
+    if (receiverSocketId && finalStatus !== "read") {
+      finalStatus = "delivered";
     }
-   if (messageStatus !== "read") {
-  conversation.unreadCount += 1;
-}
 
+    const message = new Message({
+      conversation: conversation._id,
+      content,
+      contentType,
+      fileType: file ? file.mimetype.split("/")[1] : null,
+      fileName: file ? file.originalname : null,
+      imageOrVideoUrl,
+      sender: senderId,
+      receiver: receiverId,
+      messageStatus: finalStatus,
+    });
+
+    await message.save();
+
+    conversation.lastMessage = message._id;
+    
+    if (finalStatus !== "read") {
+      conversation.unreadCount += 1;
+    }
     await conversation.save();
 
-    const populateMessage = await Message.findById(message?._id)
+    const populateMessage = await Message.findById(message._id)
       .populate("sender", "username ProfilePicture")
       .populate("receiver", "username ProfilePicture");
 
-
-    if (req.io && req.socketUserMap) {
-     
-      const receiverSocketId = req.socketUserMap.get(receiverId)?.socketId;
-      if (receiverSocketId) {
-
-        req.io.to(receiverSocketId).emit("receive_message", populateMessage);
-        
-        message.messageStatus = "delivered";
-        
-        await message.save();
-      }
+    if (receiverSocketId && req.io) {
+      req.io.to(receiverSocketId).emit("receive_message", populateMessage);
     }
 
-    return response(res, 201, "Message send successfully", populateMessage);
+    return response(res, 201, "Message sent successfully", populateMessage);
+
   } catch (error) {
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     console.error(error);
-    return response(res, 500, "internal server error");
+    return response(res, 500, "Internal server error");
   }
 };
 
-//get All conversation
-
 exports.getConversation = async (req, res) => {
+
   let userId = req.user.userId;
+
   try {
     const conversation = await Conversation.find({
       participants: userId,
@@ -139,7 +137,6 @@ exports.getConversation = async (req, res) => {
   }
 };
 
-//get messages of specific conversation
 exports.getMessages = async (req, res) => {
   const { conversationId } = req.params;
   const userId = req.user.userId;
@@ -164,9 +161,21 @@ exports.getMessages = async (req, res) => {
       },
       { $set: { messageStatus: "read" } }
     );
-    conversation.unreadCount = 0;
-    await conversation.save();
 
+    
+if (updateResult.modifiedCount > 0) {
+      conversation.unreadCount = 0;
+      await conversation.save();
+
+      // OPTIONAL REAL-TIME SYNC: 
+      // Inform the other user via Socket.io that their sent messages have been read.
+      const otherParticipantId = conversation.participants.find(id => id.toString() !== userId.toString());
+      const receiverSocketId = req.socketUserMap?.get(otherParticipantId.toString())?.socketId;
+      
+      if (receiverSocketId && req.io) {
+        req.io.to(receiverSocketId).emit("messages_read", { conversationId, readBy: userId });
+      }
+    }
     return response(res, 200, "Message retrieved successfully", messages);
   } catch (error) {
     console.error(error);
@@ -220,6 +229,7 @@ exports.markAsRead = async (req, res) => {
 
 
 exports.deleteMessage = async (req, res) => {
+
   const { messageId } = req.body;
  
  
@@ -233,8 +243,11 @@ exports.deleteMessage = async (req, res) => {
       return response(res, 400, "not authorized to delete this message");
     }
     await message.deleteOne();
-//delete from receiver end also live deletion
+
+    //delete from receiver end also live deletion
+
     if (req.io && req.socketUserMap) {
+      
       const receiverSocketId = req.socketUserMap.get(
         message.receiver.toString()
       );
@@ -243,6 +256,7 @@ exports.deleteMessage = async (req, res) => {
       if (receiverSocketId) {
         req.io.to(receiverSocketId?.socketId).emit("message_deleted", messageId);
       }
+
     }
 
     return response(res, 200, "Message deleted successfully", message);

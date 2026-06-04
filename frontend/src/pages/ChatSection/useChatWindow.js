@@ -31,9 +31,9 @@ export function useChatWindow(selectedContact) {
 
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetchOnlineUsers();
+    // fetchOnlineUsers();
     fetchConversations();
-    setContact(selectedContact?._id);
+    // setContact(selectedContact?._id);
   }, []);
 
   // ── Fetch messages when contact or conversations change ───────────────────

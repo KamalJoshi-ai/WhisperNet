@@ -29,6 +29,7 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
   useOutsideClick(emojiPickerRef, () => setShowEmojiPicker(false));
 
   // ── Empty state ────────────────────────────────────────────────────────────
+  //this selecetedConact cant be put before hooks before it disrupts the hook order of react 
   if (!selectedContact) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center mx-auto h-screen text-center">

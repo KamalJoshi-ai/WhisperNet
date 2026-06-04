@@ -6,6 +6,7 @@ export const initailizeSocket = (user) => {
   if (socket) return socket;
 
   const BACKEND_URL = import.meta.env.VITE_API_URL;
+
   const newSocket = io(BACKEND_URL, {
     withCredentials: true,
     transports: ["websocket"],
@@ -20,9 +21,6 @@ export const initailizeSocket = (user) => {
     }
   });
 
-  newSocket.on("user_status", (data) => {
-    console.log("User status update:", data);
-  });
 
   newSocket.on("connect_error", (error) => {
     console.error("Socket connection error:", error);
