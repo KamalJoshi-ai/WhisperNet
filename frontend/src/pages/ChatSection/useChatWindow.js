@@ -24,16 +24,16 @@ export function useChatWindow(selectedContact) {
   const messageEndRef = useRef();
   const emojiPickerRef = useRef();
   const fileInputRef = useRef();
-
+  const [fileCleared, setFileClearedButton] = useState(false);
   const online = isUserOnline(selectedContact?._id);
   const lastSeen = getUserLastSeen(selectedContact?._id);
   const isTyping = isUserTyping(selectedContact?._id);
 
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    // fetchOnlineUsers();
+    fetchOnlineUsers();
     fetchConversations();
-    // setContact(selectedContact?._id);
+    setContact(selectedContact?._id);
   }, []);
 
   // ── Fetch messages when contact or conversations change ───────────────────
@@ -51,12 +51,7 @@ export function useChatWindow(selectedContact) {
     if (message && selectedContact) startTyping(selectedContact._id);
   }, [message, selectedContact, startTyping]);
 
-  // ── Auto-scroll to bottom on new messages ────────────────────────────────
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // ── Cleanup file preview on unmount ──────────────────────────────────────
+   // ── Cleanup file preview on unmount ──────────────────────────────────────
   useEffect(() => () => { if (filePreview) URL.revokeObjectURL(filePreview); }, []);
 
   // ── Grouped messages ──────────────────────────────────────────────────────
@@ -98,6 +93,7 @@ export function useChatWindow(selectedContact) {
     if (filePreview) URL.revokeObjectURL(filePreview);
     setSelectedFile(null);
     setFilePreview(null);
+     
   }, [filePreview]);
 
   // ── Send message ──────────────────────────────────────────────────────────
@@ -107,10 +103,10 @@ export function useChatWindow(selectedContact) {
 
     setSending(true);
     try {
+            setFileClearedButton(true);
       const formData = new FormData();
       formData.append("senderId", user._id);
       formData.append("receiverId", selectedContact._id);
-      formData.append("messageStatus", online ? "delivered" : "sent");
       if (message.trim()) formData.append("content", message.trim());
       if (selectedFile) formData.append("media", selectedFile, selectedFile.name);
 
@@ -124,8 +120,8 @@ export function useChatWindow(selectedContact) {
     }
   }, [selectedContact, user._id, message, selectedFile, online, sendMessage, handleClearFile]);
 
-  const handleReaction = useCallback((messageId, reaction) => addReaction(messageId, reaction), [addReaction]);
-  const handleDeleteMessage = useCallback((messageId) => deleteMessage(messageId), [deleteMessage]);
+  const handleReaction =(messageId, reaction) => addReaction(messageId, reaction);
+  const handleDeleteMessage = (messageId) => deleteMessage(messageId);
 
   return {
     // state
@@ -140,7 +136,7 @@ export function useChatWindow(selectedContact) {
     online, lastSeen, isTyping, groupedMessages, user,
     // actions
     handleFileChange, handleClearFile, handleSendMessage,
-    handleReaction, handleDeleteMessage,
+    handleReaction, handleDeleteMessage,fileCleared,
     setCurrentConversation,
   };
 }

@@ -16,7 +16,7 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
     message, setMessage,
     showEmojiPicker, setShowEmojiPicker,
     showFileMenu, setShowFileMenu,
-    filePreview, selectedFile,
+    filePreview, selectedFile, fileCleared,
     sending,
     messageEndRef, emojiPickerRef, fileInputRef,
     online, lastSeen, isTyping,
@@ -27,9 +27,9 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
   } = useChatWindow(selectedContact);
 
   useOutsideClick(emojiPickerRef, () => setShowEmojiPicker(false));
-
+  
   // ── Empty state ────────────────────────────────────────────────────────────
-  //this selecetedConact cant be put before hooks before it disrupts the hook order of react 
+  //this selecetedConact cant be put before hooks before it disrupts the hook order of react
   if (!selectedContact) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center mx-auto h-screen text-center">
@@ -81,6 +81,7 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
           preview={filePreview}
           theme={theme}
           onClose={() => { handleClearFile(); }}
+          fileCleared={fileCleared}
         />
       )}
 
@@ -104,3 +105,4 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
 };
 
 export default ChatWindow;
+

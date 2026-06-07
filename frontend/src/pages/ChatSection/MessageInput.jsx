@@ -41,7 +41,6 @@ const MessageInput = ({
           <EmojiPicker
             onEmojiClick={(obj) => {
               setMessage((prev) => prev + obj.emoji);
-              setShowEmojiPicker(false);
             }}
             theme={theme === "dark" ? "dark" : "light"}
           />
@@ -97,7 +96,7 @@ const MessageInput = ({
       </div>
 
       {/* Text input */}
-      <input
+      <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={(e) => {
@@ -108,7 +107,7 @@ const MessageInput = ({
         }}
         placeholder="Type a message..."
         disabled={sending}
-        className={`h-10 px-4 py-2 flex-grow focus:outline-none resize-none rounded-lg border transition-colors ${
+        className={`h-10 px-4 py-2 flex-grow scrollbar-hide focus:outline-none resize-none rounded-lg border transition-colors ${
           theme === "dark"
             ? "bg-gray-800 border-gray-700 placeholder-gray-400 caret-gray-300 text-gray-100 focus:border-gray-600"
             : "bg-white border-gray-300 placeholder-gray-700 caret-gray-900 text-black focus:border-gray-400"

@@ -1,4 +1,6 @@
-const FilePreview = ({ file, preview, theme, onClose }) => {
+
+
+const FilePreview = ({ file, preview, theme,onClose,fileCleared }) => {
   const fileLabel = file.type.startsWith("image/")
     ? "Image"
     : file.type.startsWith("video/")
@@ -15,6 +17,7 @@ const FilePreview = ({ file, preview, theme, onClose }) => {
       <div className="h-14 px-4 flex items-center gap-3 border-b border-white/10">
         <button
           onClick={onClose}
+          disabled={fileCleared}
           className="text-gray-400 hover:text-white text-xl focus:outline-none"
           aria-label="Close preview"
         >

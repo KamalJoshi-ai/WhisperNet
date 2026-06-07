@@ -8,17 +8,16 @@ export const initailizeSocket = (user) => {
   const BACKEND_URL = import.meta.env.VITE_API_URL;
 
   const newSocket = io(BACKEND_URL, {
+    query: { userId: user?._id },
     withCredentials: true,
     transports: ["websocket"],
     reconnectionAttempts: 5,
+    reconnection: true,
     reconnectionDelay: 1000,
   });
 
   newSocket.on("connect", () => {
     console.log("Socket connected:", newSocket.id);
-    if (user?._id) {
-      newSocket.emit("user_connected", user._id);
-    }
   });
 
 

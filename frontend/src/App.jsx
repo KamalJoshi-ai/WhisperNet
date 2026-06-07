@@ -22,6 +22,7 @@ const App = () => {
   useEffect(() => {
     if (user?._id) {
       const socket = initailizeSocket(user);
+      
 
       if (socket) {
         setCurrentUser(user); 
@@ -29,9 +30,9 @@ const App = () => {
       }
     }
 
-    return () => {
-      disconnectSocket();
-    };
+    // return () => {
+    //   disconnectSocket();
+    // };
   }, []);
 
 

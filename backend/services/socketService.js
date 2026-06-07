@@ -18,40 +18,113 @@ const initializeSocket = (server) => {
   });
 
 
-io.on("connection", (socket) => {
-  
-  let userId = null;
-  
-    // ─── User Connects ───────────────────────────────────────────
-    socket.on("user_connected", async (connectingUserId) => {
-      try {
-        userId = String(connectingUserId);
-        socket.userId = userId;
+// At the top of your file, ensure your Map values contain a Set of socket IDs:
+// onlineUsers = Map( userId -> { socketIds: Set([...]), isOnline: true, lastSeen: null } )
 
-        onlineUsers.set(userId, {
-          socketId: socket.id,
-          isOnline: true,
-          lastSeen: null,
+io.on("connection", async (socket) => {
+  // 1. Get the userId immediately on connection
+  const userId = socket.handshake.query.userId ? String(socket.handshake.query.userId) : null;
+  
+  if (!userId) {
+    console.log(`Unknown socket connection dropped: ${socket.id}`);
+    return socket.disconnect();
+  }
+
+  // Bind the properties straight to the socket instance for easy access elsewhere
+  socket.userId = userId;
+  socket.join(userId); 
+
+  try {
+    // 2. Check if this is a completely brand new user session (First Tab open)
+    if (!onlineUsers.has(userId)) {
+      onlineUsers.set(userId, {
+        socketIds: new Set([socket.id]), // Put this first socket ID into a fresh Set
+        isOnline: true,
+        lastSeen: null,
+      });
+
+      // Update the database only once for this user session
+      await User.findByIdAndUpdate(userId, { isOnline: true, lastSeen: null });
+
+      // Notify other clients that this user is online
+      io.emit("user_status", {
+        userId,
+        isOnline: true,
+        lastSeen: null,
+      });
+      console.log(`User ${userId} came online 🟢`);
+
+    } else {
+      // 3. REFRESH / MULTI-TAB DETECTED: The user is already in the map
+      // Simply add the new socket ID to their active Set
+      onlineUsers.get(userId).socketIds.add(socket.id);
+      console.log(`User ${userId} refreshed/opened a tab. Active connections: ${onlineUsers.get(userId).socketIds.size}`);
+    
+  }
+
+  } catch (error) {
+    console.error("Error handling user connection architecture:", error);
+  }
+
+// ─── Safely Scoped Disconnect Handler ───────────────────────────────
+socket.on("disconnect", async () => {
+  if (!userId) return;
+
+  try {
+    const userData = onlineUsers.get(userId);
+    
+    if (userData) {
+      // 1. Remove ONLY the specific socket ID that closed/refreshed
+      userData.socketIds.delete(socket.id);
+
+      // 2. ONLY run cleanup if ALL tabs/windows are completely gone (Count hits 0)
+      if (userData.socketIds.size === 0) {
+        const now = new Date();
+
+        // Remove from the active tracking map completely
+        onlineUsers.delete(userId);
+
+        // 3. Clear Typing Indicators safely
+        if (typingUsers.has(userId)) {
+          const userTyping = typingUsers.get(userId);
+          Object.keys(userTyping).forEach((key) => {
+            if (key.endsWith("_timeout")) {
+              clearTimeout(userTyping[key]);
+            }
+          });
+          typingUsers.delete(userId);
+          
+          // Optional: Broadcast to rooms that this user stopped typing
+          // io.emit("user_stopped_typing", { userId });
+        }
+
+        // 4. Update Database (only once when they are truly gone)
+        await User.findByIdAndUpdate(userId, {
+          isOnline: false,
+          lastSeen: now,
         });
 
-        socket.join(userId); //socket.join("user_65cbd123")
-
-        await User.findByIdAndUpdate(
+        // 5. Broadcast global status change
+        io.emit("user_status", {   
           userId,
-          { isOnline: true, lastSeen: null },
-                 );
-
-        io.emit("user_status", {
-          userId,
-          isOnline: true,
-          lastSeen: null,
+          isOnline: false,
+          lastSeen: now,
         });
 
-      } catch (error) {
-        console.error("Error handling user connection", error);
+        console.log(`User ${userId} went completely offline ⚪ (All tabs closed)`);
+      } else {
+        // REFRESH / EXTRA TAB LOOP:
+        console.log(`User ${userId} closed a tab, but remains online. Remaining active tabs: ${userData.socketIds.size}`);
       }
-    });
+    }
 
+    // Always clean up the individual socket room allocation
+    socket.leave(userId);
+
+  } catch (error) {
+    console.error("Error handling disconnection safely:", error);
+  }
+});
     // ─── Get User Status ─────────────────────────────────────────
     socket.on("get_user_status", (requestedUserId, callback) => {
       const userData = onlineUsers.get(String(requestedUserId));
@@ -195,20 +268,19 @@ io.on("connection", (socket) => {
         const populatedMessage = await Message.findById(messageId)
           .populate("sender", "username ProfilePicture")
           .populate("receiver", "username ProfilePicture")
-          .populate("reactions.user", "username");
+          
 
         const reactionUpdated = {
           messageId,
           reactions: populatedMessage.reactions,
         };
 
-        const senderData = onlineUsers.get(populatedMessage.sender._id.toString());   // ✅ fixed
-        const receiverData = onlineUsers.get(populatedMessage.receiver._id.toString()); // ✅ fixed
-
+        const receiverData = [...onlineUsers.get(populatedMessage.sender._id.toString()).socketIds][0];  
+        const senderData = [...onlineUsers.get(populatedMessage.receiver._id.toString()).socketIds][0]; 
         if (senderData)
-          io.to(senderData.socketId).emit("reaction_update", reactionUpdated);    // ✅ fixed
+          io.to(senderData).emit("reaction_update", reactionUpdated);    
         if (receiverData)
-          io.to(receiverData.socketId).emit("reaction_update", reactionUpdated);  // ✅ fixed
+          io.to(receiverData).emit("reaction_update", reactionUpdated); 
 
       } catch (error) {
         console.error("Error handling reaction", error);
@@ -217,37 +289,7 @@ io.on("connection", (socket) => {
 
     // ─── Disconnect ───────────────────────────────────────────────
 
-    socket.on("disconnect", async () => {
-      if (!userId) return;
-
-      try {
-        onlineUsers.delete(userId);
-
-        if (typingUsers.has(userId)) {
-          const userTyping = typingUsers.get(userId);
-          Object.keys(userTyping).forEach((key) => {
-            if (key.endsWith("_timeout")) clearTimeout(userTyping[key]);
-          });
-          typingUsers.delete(userId);
-        }
-
-        await User.findByIdAndUpdate(userId, {
-          isOnline: false,
-          lastSeen: new Date(),
-        });
-
-        io.emit("user_status", {   
-          userId,
-          isOnline: false,
-          lastSeen: new Date(),
-        });
-
-        socket.leave(userId);
-        console.log(`User ${userId} disconnected`);
-      } catch (error) {
-        console.error("Error handling disconnection", error);
-      }
-    });
+   
 
     io.socketUserMap = onlineUsers;
 

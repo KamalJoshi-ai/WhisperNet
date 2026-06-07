@@ -62,8 +62,7 @@ exports.sendMessage = async (req, res) => {
     }
 
     let finalStatus = messageStatus;
-    const receiverSocketId = req.socketUserMap?.get(receiverId)?.socketId;
-    
+    const receiverSocketId = req.socketUserMap?.get(receiverId)?.socketIds;
     if (receiverSocketId && finalStatus !== "read") {
       finalStatus = "delivered";
     }
@@ -94,7 +93,9 @@ exports.sendMessage = async (req, res) => {
       .populate("receiver", "username ProfilePicture");
 
     if (receiverSocketId && req.io) {
-      req.io.to(receiverSocketId).emit("receive_message", populateMessage);
+      const id = [...receiverSocketId][0]; 
+    
+      req.io.to(id).emit("receive_message", populateMessage);
     }
 
     return response(res, 201, "Message sent successfully", populateMessage);
@@ -140,48 +141,71 @@ exports.getConversation = async (req, res) => {
 exports.getMessages = async (req, res) => {
   const { conversationId } = req.params;
   const userId = req.user.userId;
+
   try {
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
       return response(res, 404, "Conversation not found");
     }
+
     if (!conversation.participants.includes(userId)) {
       return response(res, 403, "Not authorised to view this conversation");
     }
+
     const messages = await Message.find({ conversation: conversationId })
       .populate("sender", "username ProfilePicture")
       .populate("receiver", "username ProfilePicture")
       .sort("createdAt");
    
-    await Message.updateMany(
+    const updateResult = await Message.updateMany(
       {
         conversation: conversationId,
         receiver: userId,
-        messageStatus: { $in: ["send", "delivered"] },
+        // Using "sent" instead of "send" is standard, match your schema string here
+        messageStatus: { $in: ["send", "delivered"] }, 
       },
       { $set: { messageStatus: "read" } }
     );
-
     
-if (updateResult.modifiedCount > 0) {
-      conversation.unreadCount = 0;
-      await conversation.save();
 
-      // OPTIONAL REAL-TIME SYNC: 
-      // Inform the other user via Socket.io that their sent messages have been read.
-      const otherParticipantId = conversation.participants.find(id => id.toString() !== userId.toString());
-      const receiverSocketId = req.socketUserMap?.get(otherParticipantId.toString())?.socketId;
+    if (updateResult && updateResult.modifiedCount > 0) {
       
-      if (receiverSocketId && req.io) {
-        req.io.to(receiverSocketId).emit("messages_read", { conversationId, readBy: userId });
+    
+      if (typeof conversation.unreadCount !== 'undefined') {
+        conversation.unreadCount = 0;
+        await conversation.save();
+      }
+
+      // Real-time synchronization via Socket.io
+      const otherParticipantId = conversation.participants.find(
+        id => id.toString() !== userId.toString()
+      );
+
+      if (otherParticipantId) {
+        const otherUserStringId = otherParticipantId.toString();
+        // Safe access map fallback check
+        const receiverSocketData = req.socketUserMap?.get(otherUserStringId)?.socketIds;
+        const receiverSocketId = receiverSocketData?.socketId;
+           
+
+        if (receiverSocketId && req.io) {
+          const id = [...receiverSocketId][0]; 
+          req.io.to(id).emit("messages_read", { 
+            conversationId, 
+            readBy: userId 
+          });
+        }
       }
     }
+
     return response(res, 200, "Message retrieved successfully", messages);
+
   } catch (error) {
-    console.error(error);
+    console.error("Error in getMessages controller:", error);
     return response(res, 500, "internal server error");
   }
 };
+
 
 exports.markAsRead = async (req, res) => {
   const { messageIds } = req.body;
@@ -208,11 +232,11 @@ exports.markAsRead = async (req, res) => {
       for (const message of updatedMessages) {
         const senderSocketId = req.socketUserMap.get(
           message.sender._id.toString()
-        ).socketId;
+        ).socketIds;
       
         if (senderSocketId) {
-        
-          req.io.to(senderSocketId).emit("message-read", {
+        const id = [...senderSocketId][0]; 
+          req.io.to(id).emit("message-read", {
             _id: message._id,
             messageStatus: "read",
           });
@@ -247,14 +271,13 @@ exports.deleteMessage = async (req, res) => {
     //delete from receiver end also live deletion
 
     if (req.io && req.socketUserMap) {
-      
-      const receiverSocketId = req.socketUserMap.get(
-        message.receiver.toString()
-      );
+
+      const receiverSocketId = req.socketUserMap.get(message.receiver.toString()).socketIds;
     
       
       if (receiverSocketId) {
-        req.io.to(receiverSocketId?.socketId).emit("message_deleted", messageId);
+        const id = [...receiverSocketId][0]; 
+        req.io.to(id).emit("message_deleted", messageId);
       }
 
     }
