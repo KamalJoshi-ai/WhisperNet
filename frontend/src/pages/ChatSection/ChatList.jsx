@@ -32,7 +32,6 @@ const ContactCard = React.memo(({ contact, theme, selectedContact, user, onSelec
         <h2 className={`font-medium ${theme === "dark" ? "text-white" : "text-black"}`}>
           {contact?.username}
         </h2>
-
         {contact?.conversation?.lastMessage?.createdAt && (
           <span
             className={`text-xs ${
@@ -72,7 +71,6 @@ const ChatList = ({ contacts }) => {
   const { theme } = useThemeStore();
   const { user } = useUserStore();
   const [searchTerms, setSearchTerms] = useState("")
-
   // Memoize filtered contacts to prevent unnecessary recalculations
   const filteredContacts = useMemo(() => 
     contacts?.filter((contact) =>

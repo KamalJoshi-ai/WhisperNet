@@ -137,6 +137,26 @@ exports.getConversation = async (req, res) => {
     return response(res, 500, "internal server error");
   }
 };
+exports.updateContact=async(req,res)=>{
+  const { conversationId } = req.params;
+   const userId = req.user.userId;
+
+  try {
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return response(res, 404, "Conversation not found");
+    }
+
+    if (!conversation.participants.includes(userId)) {
+      return response(res, 403, "Not authorised to view this conversation");
+    }
+    
+  } catch (error) {
+    
+  }
+  
+}
 
 exports.getMessages = async (req, res) => {
   const { conversationId } = req.params;

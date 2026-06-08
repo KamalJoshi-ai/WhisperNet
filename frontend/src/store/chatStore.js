@@ -1,19 +1,22 @@
 import { create } from "zustand";
 import axiosInstance from "../services/url.service";
-
+import { getAllUsers } from "../services/user.service";
+import useLayoutStore from "./layoutStore";
 // ===== CONSTANTS =====
 const SOCKET_EVENTS = {
   RECEIVE_MESSAGE: "receive_message",
   MESSAGE_SEND: "message_send",
   REACTION_UPDATE: "reaction_update",
   MESSAGE_DELETED: "message_deleted",
- 
+  MESSAGE_ERROR: "message_error",
   USER_TYPING: "user_typing",
   MESSAGE_READ: "message-read",
   USER_STATUS: "user_status",
   OFFLINE: "Offline",
   ONLINE_USERS: "online_users",
 };
+
+  // const { selectedContact } = useLayoutStore();
 
 // ===== ZUSTAND STORE =====
 const useChatStore = create((set, get) => {
@@ -22,6 +25,7 @@ const useChatStore = create((set, get) => {
   return {
     // ===== STATE =====
     conversations: { data: [] },
+    allUsers:[],
     currentUser: null,
     socketListenersInitialized : false,
     currentConversation: null,
@@ -38,6 +42,7 @@ const useChatStore = create((set, get) => {
     messageCache: new Map(), // Track all received messages globally
 
     // ===== SETTERS =====
+    setAllUsers:(data)=>set({allUsers:data}),
     setContact: (user) => set({ contact: user }),
     setCurrentUser: (user) => set({ currentUser: user }),
     setCurrentConversation: (id) => set({ currentConversation: id }),
@@ -66,7 +71,6 @@ const useChatStore = create((set, get) => {
       socket.on(SOCKET_EVENTS.RECEIVE_MESSAGE, (message) => {
         try {
           get().receiveMessage(message);
-         
         } catch (error) {
           console.error("Error processing received message:", error);
           set({ error: error?.message || "Failed to receive message" });
@@ -103,6 +107,11 @@ const useChatStore = create((set, get) => {
         }));
       });
 
+      // ===== MESSAGE ERROR =====
+      socket.on(SOCKET_EVENTS.MESSAGE_ERROR, (error) => {
+        console.error("Message error:", error);
+        set({ error });
+      });
 
       // ===== USER TYPING =====
       socket.on(
@@ -207,6 +216,33 @@ const useChatStore = create((set, get) => {
       }
     },
 
+
+    updateUnreadCount: async(conversationId) =>
+   {
+    const users = get().allUsers.map((user) =>
+          user._id === conversationId
+            ? {
+                ...user,
+                conversation: {
+                  ...user.conversation,
+                  unreadCount: 0,
+                  
+                },
+              }
+            : user
+        )
+  try {
+    await axiosInstance.put("/chat/updateContacts", {
+      conversationId,
+    });
+    
+          set({allUsers:users})
+  } catch (error) {
+    console.error(error);
+  }
+        console.log(users,conversationId)
+      },
+    
     // ===== FETCH CONVERSATIONS =====
     fetchConversations: async () => {
       set({ loading: true, error: null });
@@ -353,9 +389,8 @@ const useChatStore = create((set, get) => {
     },
 
     // ===== RECEIVE MESSAGE - Fixed: Better logic =====
-    receiveMessage: (message) => {
+    receiveMessage: async (message) => {
       if (!message) return;
-
       const { currentConversation, currentUser } = get();
 
       // Check global cache to prevent duplicates
@@ -369,15 +404,30 @@ const useChatStore = create((set, get) => {
         set((state) => ({
           messages: [...state.messages, message],
         }));
-
+      
         // If current user is receiver, mark as read immediately
         if (message.receiver?._id === currentUser?._id) {
           get().markMessageAsRead(currentConversation);
         }
       }
+        
+  try {
+      const result = await getAllUsers();
 
-      // Always update conversation preview + unread count
-      set((state) => {
+      if (result.status === "success") {
+        get().setAllUsers(result.data);
+      }
+       } catch (error) {
+      console.log(error);
+    }
+    
+
+    const isSelected = useLayoutStore.getState().selectedContact
+    console.log("isSelected",isSelected)
+    if(isSelected){
+      get().updateUnreadCount(isSelected._id)
+    }
+         set((state) => {
         const updatedConversations = state.conversations?.data?.map((conv) => {
           if (conv._id === message.conversation) {
             return {
@@ -416,6 +466,7 @@ const useChatStore = create((set, get) => {
             msg.conversation === currentConversation
         )
         .map((msg) => msg._id);
+
       if (unreadIds.length === 0) return;
 
       try {
@@ -427,7 +478,6 @@ const useChatStore = create((set, get) => {
               : msg
           ),
         }));
-        
 
         // Send to server
         await axiosInstance.put("/chat/messages/read", {
@@ -465,10 +515,8 @@ const useChatStore = create((set, get) => {
     addReaction: async (messageId, emoji) => {
       const socket = get().socket
       const { currentUser } = get();
-  
 
       if (socket && currentUser) {
-       
         socket.emit("add_reaction", {
           messageId,
           emoji,
@@ -517,6 +565,7 @@ const useChatStore = create((set, get) => {
     // ===== CHECK IF USER IS ONLINE =====
     isUserOnline: (userId) => {
       if (!userId) return false;
+
       const { onlineUsers } = get();
       return onlineUsers.get(userId)?.isOnline || false;
     },
@@ -547,8 +596,6 @@ const useChatStore = create((set, get) => {
 });
 
 export default useChatStore;
-
-
 
 
 
