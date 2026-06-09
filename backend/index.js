@@ -17,13 +17,11 @@ const initializeSocket = require('./services/socketService')
 
 
 app.use(express.json());//convert json to js object 
-  // If client sends { "name": "Kamal" }
-  // req.body will be { name: "Kamal" }
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-  // If the form sends: name=Kamal&age=22
-  // req.body -> { name: "Kamal", age: "22" }
+  // If the form sends: name=Raj&age=19
+  // req.body -> { name: "Raj", age: "19" }
 
 app.use(
   cors({
