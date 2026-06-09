@@ -35,7 +35,7 @@ const ChatHeader = ({ contact, online, lastSeen, isTyping, theme, onBack }) => (
               Online
             </span>
           ) : lastSeen && isValid(new Date(lastSeen)) ? (
-            `Last Seen ${format(new Date(lastSeen), "HH:mm")}`
+            `Last Seen ${format(new Date(lastSeen), "HH:mm", { timeZone: "Asia/Kolkata" })}`
           ) : (
             "Offline"
           )}
