@@ -241,7 +241,7 @@ const useChatStore = create((set, get) => {
             : user
         )
   try {
-    await axiosInstance.patch("/chat/updateCount",{ conversationId });
+    await axiosInstance.patch("chat/updateCount",{ conversationId });
     
     set({allUsers:users})
          console.log(users,selectedContactId)
@@ -255,7 +255,7 @@ const useChatStore = create((set, get) => {
     fetchConversations: async () => {
       set({ loading: true, error: null });
       try {
-        const { data } = await axiosInstance.get("/chat/conversations");
+        const { data } = await axiosInstance.get("chat/conversations");
 
         // Normalize data structure
         const normalizedConversations = {
@@ -288,7 +288,7 @@ const useChatStore = create((set, get) => {
       set({ loading: true, error: null });
       try {
         const { data } = await axiosInstance.get(
-          `/chat/conversations/${conversationId}/messages`
+          `chat/conversations/${conversationId}/messages`
         );
 
         const messageArray = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
@@ -358,7 +358,7 @@ const useChatStore = create((set, get) => {
 
       try {
         const { data } = await axiosInstance.post(
-          "/chat/send-message",
+          "chat/send-message",
           formData
         );
 
@@ -488,7 +488,7 @@ const useChatStore = create((set, get) => {
         }));
 
         // Send to server
-        await axiosInstance.put("/chat/messages/read", {
+        await axiosInstance.put("chat/messages/read", {
           messageIds: unreadIds,
         });
       } catch (error) {
@@ -500,7 +500,7 @@ const useChatStore = create((set, get) => {
     // ===== DELETE MESSAGE =====
     deleteMessage: async (messageId) => {
       try {
-        await axiosInstance.delete(`/chat/messages/${messageId}`, {
+        await axiosInstance.delete(`chat/messages/${messageId}`, {
           data: { messageId },
         });
 
