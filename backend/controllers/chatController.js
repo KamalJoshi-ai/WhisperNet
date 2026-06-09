@@ -137,8 +137,9 @@ exports.getConversation = async (req, res) => {
     return response(res, 500, "internal server error");
   }
 };
-exports.updateContact=async(req,res)=>{
-  const { conversationId } = req.params;
+exports.updateCount= async (req,res) => {
+  const { conversationId } = req.body;
+  console.log(conversationId)
    const userId = req.user.userId;
 
   try {
@@ -152,8 +153,13 @@ exports.updateContact=async(req,res)=>{
       return response(res, 403, "Not authorised to view this conversation");
     }
     
+    conversation.unreadCount=0;
+    await conversation.save()
+      return response(res, 200, "UnreadCount updated successfully");
+
   } catch (error) {
-    
+     console.error("Error in getMessages controller:", error);
+    return response(res, 500, "internal server error");
   }
   
 }

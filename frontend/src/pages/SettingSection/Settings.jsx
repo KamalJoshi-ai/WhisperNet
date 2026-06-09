@@ -156,7 +156,7 @@ const Settings = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-base truncate">{user?.username || "Your Name"}</p>
                 <p className={`text-sm truncate mt-0.5 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                  {user?.about || "Hey there! I am using WhatsApp."}
+                  {user?.about || "Hey there! I am using WhisperNet."}
                 </p>
               </div>
 

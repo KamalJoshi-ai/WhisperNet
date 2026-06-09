@@ -11,7 +11,7 @@ const initializeSocket = (server) => {
     cors: {
       origin: process.env.FRONTEND_URL,
       credentials: true,
-      methods: ["GET", "PUT", "POST", "DELETE"],
+      methods: ["GET", "PUT", "POST", "DELETE","PATCH"],
     },
     pingTimeout: 60000,
     pingInterval:30000,

@@ -217,10 +217,19 @@ const useChatStore = create((set, get) => {
     },
 
 
-    updateUnreadCount: async(conversationId) =>
+    updateUnreadCount: async(selectedContactId) =>
    {
+
+    const selectedUser = get().allUsers.find(
+    (user) => user?._id === selectedContactId
+  );
+
+   const conversationId = selectedUser?.conversation?._id;
+
+   console.log("ConvdId",conversationId)
+
     const users = get().allUsers.map((user) =>
-          user._id === conversationId
+          user._id === selectedContactId
             ? {
                 ...user,
                 conversation: {
@@ -232,15 +241,14 @@ const useChatStore = create((set, get) => {
             : user
         )
   try {
-    await axiosInstance.put("/chat/updateContacts", {
-      conversationId,
-    });
+    await axiosInstance.patch("/chat/updateCount",{ conversationId });
     
-          set({allUsers:users})
+    set({allUsers:users})
+         console.log(users,selectedContactId)
+  
   } catch (error) {
     console.error(error);
   }
-        console.log(users,conversationId)
       },
     
     // ===== FETCH CONVERSATIONS =====

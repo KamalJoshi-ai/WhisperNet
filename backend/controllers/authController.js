@@ -161,7 +161,7 @@ return response (res,404,"unauthorised: Login first")
     {
       return response(res, 404, "User does not exist");
     }
-       return response(res, 200, "User retrieved and allowed to use whatsapp",user);
+       return response(res, 200, "User retrieved and allowed to use whisperNet",user);
   } catch (error) {
     console.error(error);
     return response(res, 500, "internal server error");

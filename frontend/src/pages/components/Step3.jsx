@@ -94,7 +94,7 @@ useEffect(() => {
             theme === "dark" ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          This is how it will appear on WhatsApp
+          This is how it will appear on WhsisperNet
         </p>
       </div>
 

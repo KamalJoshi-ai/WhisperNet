@@ -182,7 +182,7 @@ const UserDetail = () => {
             {/* Name & status under avatar */}
             <p className="font-semibold text-base">{user?.username || "Your Name"}</p>
             <p className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-              {user?.about || "Hey there! I am using WhatsApp."}
+              {user?.about || "Hey there! I am using WhisperNet."}
             </p>
 
             {/* Save picture button */}
@@ -240,14 +240,14 @@ const UserDetail = () => {
             isDark={isDark}
             inputClass={inputClass}
             cardClass={cardClass}
-            hint="This is not your username or pin. This name will be visible to your WhatsApp contacts."
+            hint="This is not your username or pin. This name will be visible to your WhisperNet contacts."
           />
 
           {/* ── ABOUT CARD ── */}
           <EditableField
             label="About"
             value={about}
-            displayValue={user?.about || about || "Hey there! I am using WhatsApp."}
+            displayValue={user?.about || about || "Hey there! I am using WhisperNet."}
             isEditing={isEditingAbout}
             onEdit={() => setIsEditingAbout(true)}
             onChange={(e) => setAbout(e.target.value)}

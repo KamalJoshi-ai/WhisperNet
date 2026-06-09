@@ -22,6 +22,6 @@ router.delete(
   authMiddleWare,
   chatController.deleteMessage
 );
-router.put("updateContacts",chatController.updateContact)
+router.patch("/updateCount",authMiddleWare,chatController.updateCount)
 
 module.exports = router;

@@ -12,7 +12,6 @@ const app = express();
 dotenv.config();
 const authRoute = require("./routes/authRoute");
 const chatRoute = require("./routes/chatRoute");
-const statusRoute = require("./routes/statusRoute");
 const initializeSocket = require('./services/socketService')
 //Middleware
 
@@ -55,7 +54,6 @@ app.use((req,res,next)=>{
 //routes
 app.use("/api/auth", authRoute);
 app.use("/api/chat", chatRoute)
-app.use("/api/status", statusRoute);
 
 
 const PORT = process.env.PORT;
