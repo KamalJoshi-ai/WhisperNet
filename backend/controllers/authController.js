@@ -67,8 +67,10 @@ const verifyOtp = async (req, res) => {
       if (!user.emailOtp || now > new Date(user.emailOtpExpiry)) {
         return response(res, 400, "OTP expired. Please request a new OTP.");
       }
-const isOtpValid = await bcrypt.compare(otp, user.emailOtp);
-
+const isOtpValid = await bcrypt.compare(
+  String(otp).trim(),
+  user.emailOtp
+);
 if (!isOtpValid) return response(res, 400, "Invalid OTP Bcrypt");
 
       // Correct OTP — mark verified
@@ -100,6 +102,8 @@ if (!isOtpValid) return response(res, 400, "Invalid OTP Bcrypt");
     res.cookie("authToken", token, {
       httpOnly: true,
       maxAge: 1000 * 86400 * 365,
+      sameSite: "none",
+      secure: true
     });
 
     return response(res, 200, "OTP verified successfully", { token, user });

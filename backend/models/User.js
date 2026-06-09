@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema(
     agreed: { type: Boolean, default: false },
      username: {
       type: String,
-      unique: true,  
+      unique: true,
+      sparse:true,  
     },
   },
   { timestamps: true }
