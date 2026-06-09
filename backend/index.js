@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // explicitly allow frontend
+    origin: process.env.FRONTEND_URL, // explicitly allow frontend
     credentials: true, // allow cookies/auth headers
   })
 );
