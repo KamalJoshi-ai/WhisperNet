@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 const http = require('http')
 const connectDb = require("./config/dbConnect");
 const app = express();
+const rateLimit = require("express-rate-limit");
 // express() is a function call that creates an Express application object
 
 dotenv.config();
@@ -14,7 +15,18 @@ const authRoute = require("./routes/authRoute");
 const chatRoute = require("./routes/chatRoute");
 const initializeSocket = require('./services/socketService')
 //Middleware
-
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, 
+  max: 100, 
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.set("trust proxy", 1);
+app.use(limiter);
 
 app.use(express.json());//convert json to js object 
 
