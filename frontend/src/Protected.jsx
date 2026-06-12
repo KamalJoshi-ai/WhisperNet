@@ -9,11 +9,11 @@ import { userAuth } from "./services/user.service";
 import Spinner from "./utils/Spinner"; 
 
 
-export const ProtectedRoute = () => {
-  const location = useLocation();
+export const PublicRoute = () => {
   const [isChecking, setIsChecking] = useState(true);
   const { isAuthenticated, setUser, clearUser } = useUserStore();
-
+  
+console.log("aaaa")
   useEffect(() => {
     const checkAuth = async function( ) {
       try {
@@ -27,24 +27,29 @@ export const ProtectedRoute = () => {
       }
     };
     checkAuth()
-   
   }, [setUser, clearUser]);
+
+
 
  if (isChecking) return <Spinner />;
 
-  if (!isAuthenticated)
-    return <Navigate to="/user-login"  replace />;
-//use Navigate when redirect, condition and no event     while     use navigate function
-//of useNavigate() while dealing with events 
-  return <Outlet />;
-};
-
-export const PublicRoute = () => {
-  const {isAuthenticated} = useUserStore();
-
-  if (isAuthenticated) {
+ if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
+};
+
+export const ProtectedRoute = () => {
+  
+  const {isAuthenticated} = useUserStore();
+
+  console.log(isAuthenticated)
+  if (isAuthenticated) {
+   return <Outlet />;
+  }
+    else {
+  return <Navigate to="/user-login"  replace />;
+}
+  
 };
