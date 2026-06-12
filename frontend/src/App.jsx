@@ -14,6 +14,7 @@ import {
   initailizeSocket,
 } from "./services/chat.service.jsx";
 import useChatStore from "./store/chatStore.js";
+import NotFound from "./Notfound.jsx";
 
 const App = () => {
   const { user } = useUserStore();
@@ -56,7 +57,7 @@ const App = () => {
             <Route path="/user-login" element={<Login />} />
           </Route>
 
-          
+           <Route path="*" element={<NotFound/>} />
         </Routes>
       </Router>
     </>

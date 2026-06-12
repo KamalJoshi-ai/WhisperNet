@@ -12,8 +12,7 @@ import Spinner from "./utils/Spinner";
 export const PublicRoute = () => {
   const [isChecking, setIsChecking] = useState(true);
   const { isAuthenticated, setUser, clearUser } = useUserStore();
-  
-console.log("aaaa")
+
   useEffect(() => {
     const checkAuth = async function( ) {
       try {
@@ -31,8 +30,12 @@ console.log("aaaa")
 
 
 
- if (isChecking) return <Spinner />;
-
+ if (isChecking) {
+  return    <div id="loader">
+    <div class="spinner"></div>
+    <p>Loading WhisperNet...</p>
+  </div>
+ }
  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
