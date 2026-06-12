@@ -74,26 +74,42 @@ export function useChatWindow(selectedContact) {
     }, {});
   }, [messages]);
 
-  // ── File handlers ─────────────────────────────────────────────────────────
-  const handleFileChange = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+const handleFileChange = useCallback((e) => {
+  const files = e.target.files;
+console.log(files)
+  if (!files?.length) return;
 
-    if (file.size > MAX_FILE_SIZE) {
-      alert(`File must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
-      return;
-    }
+  if (files.length > 1) {
+    alert("Please select only one file");
+    e.target.value = "";
+    return;
+  }
 
-    if (filePreview) URL.revokeObjectURL(filePreview);
-    setSelectedFile(file);
+  const file = files[0];
 
-    const previewable = file.type.startsWith("image/") ||
-      file.type.startsWith("video/") ||
-      file.type === "application/pdf";
+  if (file.size > MAX_FILE_SIZE) {
+    alert(`File must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+    e.target.value = "";
+    return;
+  }
 
-    setFilePreview(previewable ? URL.createObjectURL(file) : null);
-    setShowFileMenu(false);
-  }, [filePreview]);
+  if (filePreview) {
+    URL.revokeObjectURL(filePreview);
+  }
+
+  setSelectedFile(file);
+
+  const previewable =
+    file.type.startsWith("image/") ||
+    file.type.startsWith("video/") ||
+    file.type === "application/pdf";
+
+  setFilePreview(
+    previewable ? URL.createObjectURL(file) : null
+  );
+
+  setShowFileMenu(false);
+}, [filePreview]);
 
   const handleClearFile = useCallback(() => {
     if (filePreview) URL.revokeObjectURL(filePreview);
@@ -102,29 +118,52 @@ export function useChatWindow(selectedContact) {
   }, [filePreview]);
 
   // ── Send message ──────────────────────────────────────────────────────────
-  const handleSendMessage = useCallback(async () => {
-    if (!selectedContact || !user?._id) return;
-    if (!message.trim() && !selectedFile) return;
-    setSending(true);
-    try {
-      const formData = new FormData();
-      formData.append("senderId", user._id);
-      formData.append("receiverId", selectedContact._id);
-      formData.append("messageStatus", online ? "delivered" : "sent");
-      if (message.trim()) formData.append("content", message.trim());
-      if (selectedFile) formData.append("media", selectedFile, selectedFile.name);
+const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7 MB
 
-      await sendMessage(formData);
-      setMessage("");
-      handleClearFile();
-      // updateUnreadCount(selectedContact._id)
-    } catch (err) {
-      console.error("Failed to send message:", err);
-    } finally {
-      setSending(false);
+const handleSendMessage = useCallback(async () => {
+  if (!selectedContact || !user?._id) return;
+  if (!message.trim() && !selectedFile) return;
+
+  if (selectedFile && selectedFile.size > MAX_FILE_SIZE) {
+    alert("File size must be less than 7 MB");
+    return;
+  }
+
+  setSending(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("senderId", user._id);
+    formData.append("receiverId", selectedContact._id);
+    formData.append("messageStatus", online ? "delivered" : "sent");
+
+    if (message.trim()) {
+      formData.append("content", message.trim());
     }
-  }, [selectedContact, user._id, message, selectedFile, online, sendMessage, handleClearFile]);
 
+    if (selectedFile) {
+      formData.append("media", selectedFile, selectedFile.name);
+    }
+
+    await sendMessage(formData);
+
+    setMessage("");
+    handleClearFile();
+  } catch (err) {
+    console.error("Failed to send message:", err);
+  } finally {
+    setSending(false);
+  }
+}, [
+  selectedContact,
+  user?._id,
+  message,
+  selectedFile,
+  online,
+  sendMessage,
+  handleClearFile,
+]);
   const handleReaction = useCallback((messageId, reaction) => addReaction(messageId, reaction), [addReaction]);
   const handleDeleteMessage = useCallback((messageId) => deleteMessage(messageId), [deleteMessage]);
 

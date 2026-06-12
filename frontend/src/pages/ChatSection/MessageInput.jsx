@@ -70,6 +70,7 @@ const MessageInput = ({
             <input
               type="file"
               ref={fileInputRef}
+                multiple={false}
               onChange={onFileChange}
               accept={ALLOWED_FILE_ACCEPT}
               className="hidden"

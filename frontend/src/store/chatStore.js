@@ -227,8 +227,7 @@ const useChatStore = create((set, get) => {
 
    const conversationId = selectedUser?.conversation?._id;
 
-   console.log("ConvdId",conversationId)
-
+  
     const users = get().allUsers.map((user) =>
           user._id === selectedContactId
             ? {
