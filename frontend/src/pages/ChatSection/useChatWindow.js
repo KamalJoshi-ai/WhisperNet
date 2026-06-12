@@ -9,7 +9,7 @@ export function useChatWindow(selectedContact) {
   const {
     messages, sendMessage, fetchMessages, fetchConversations, conversations,
     isUserTyping, startTyping, deleteMessage, getUserLastSeen, isUserOnline,
-    addReaction, fetchOnlineUsers, setContact, setCurrentConversation,updateUnreadCount
+    addReaction, fetchOnlineUsers, setContact, setCurrentConversation,updateUnreadCount,loading
   } = useChatStore();
 
   const { user } = useUserStore();
@@ -142,6 +142,6 @@ export function useChatWindow(selectedContact) {
     // actions
     handleFileChange, handleClearFile, handleSendMessage,
     handleReaction, handleDeleteMessage,
-    setCurrentConversation,
+    setCurrentConversation,loading
   };
 }

@@ -8,6 +8,7 @@ import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import FilePreview from "./FilePreview";
 import MessageInput from "./MessageInput";
+import Spinner from "../../utils/Spinner";
 
 const ChatWindow = ({ selectedContact, setSelectedContact }) => {
   const { theme } = useThemeStore();
@@ -23,11 +24,18 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
     groupedMessages, user,
     handleFileChange, handleClearFile,
     handleSendMessage, handleReaction, handleDeleteMessage,
-    setCurrentConversation,
+    setCurrentConversation,loading
   } = useChatWindow(selectedContact);
 
   useOutsideClick(emojiPickerRef, () => setShowEmojiPicker(false));
   
+ if (loading) {
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <Spinner />
+    </div>
+  );
+}
   // ── Empty state ────────────────────────────────────────────────────────────
   //this selecetedConact cant be put before hooks before it disrupts the hook order of react
   if (!selectedContact) {
