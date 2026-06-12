@@ -42,9 +42,7 @@ const App = () => {
       <Toaster position="top-right" reverseOrder={false} />
       <Router>
         <Routes>
-          <Route element={<PublicRoute />}>
-            <Route path="/user-login" element={<Login />} />
-          </Route>
+        
 
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
@@ -53,6 +51,12 @@ const App = () => {
             <Route path="/status" element={<Status />} />
             <Route path="/setting" element={<Settings />} />
           </Route>
+
+            <Route element={<PublicRoute />}>
+            <Route path="/user-login" element={<Login />} />
+          </Route>
+
+          
         </Routes>
       </Router>
     </>

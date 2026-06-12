@@ -121,11 +121,17 @@ const MessageInput = ({
         className="focus:outline-none flex items-center justify-center hover:opacity-70 disabled:opacity-50"
         aria-label="Send message"
       >
-        {sending ? (
-          <span className="w-5 h-5 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin" />
-        ) : (
-          <FaPaperPlane className={`text-xl ${canSend ? "text-green-500" : "text-gray-400"}`} />
-        )}
+       {sending ? (
+  <span className="w-7 h-7 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin" />
+) : (
+  <FaPaperPlane
+    className={`text-2xl transition-colors ${
+      canSend
+        ? "text-green-500 hover:text-green-600"
+        : "text-gray-400"
+    }`}
+  />
+)}
       </button>
     </div>
   );

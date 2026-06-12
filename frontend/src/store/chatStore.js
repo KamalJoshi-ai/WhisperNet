@@ -26,6 +26,7 @@ const useChatStore = create((set, get) => {
     // ===== STATE =====
     conversations: { data: [] },
     allUsers:[],
+    
     currentUser: null,
     socketListenersInitialized : false,
     currentConversation: null,
