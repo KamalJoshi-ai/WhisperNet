@@ -18,6 +18,35 @@ const SOCKET_EVENTS = {
 
   // const { selectedContact } = useLayoutStore();
 
+const playNotificationSound = () => {
+  const audio = new Audio("/sounds/notification.mp3");
+  audio.play().catch(() => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const context = new AudioContext();
+      
+      const playTone = (freq, delay, duration, volume) => {
+        const osc = context.createOscillator();
+        const gainNode = context.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, context.currentTime + delay);
+        gainNode.gain.setValueAtTime(volume, context.currentTime + delay);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + delay + duration);
+        osc.connect(gainNode);
+        gainNode.connect(context.destination);
+        osc.start(context.currentTime + delay);
+        osc.stop(context.currentTime + delay + duration);
+      };
+
+      playTone(523.25, 0, 0.15, 0.08); // C5 Tone
+      playTone(783.99, 0.08, 0.25, 0.1); // G5 Tone
+    } catch (err) {
+      console.warn("Web Audio API chime failed:", err);
+    }
+  });
+};
+
 // ===== ZUSTAND STORE =====
 const useChatStore = create((set, get) => {
     // Flag to prevent duplicate initialization
@@ -406,6 +435,11 @@ const useChatStore = create((set, get) => {
 
       // Add to cache
       get().messageCache.set(message._id, true);
+
+      // Play chime if message sender is not current user
+      if (message.sender?._id !== currentUser?._id) {
+        playNotificationSound();
+      }
 
       // If this is the current conversation, add to messages
       if (message.conversation === currentConversation) {

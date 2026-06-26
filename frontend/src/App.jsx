@@ -15,6 +15,7 @@ import {
 } from "./services/chat.service.jsx";
 import useChatStore from "./store/chatStore.js";
 import NotFound from "./Notfound.jsx";
+import LandingPage from "./pages/LandingPage";
 
 const App = () => {
   const { user } = useUserStore();
@@ -43,21 +44,24 @@ const App = () => {
       <Toaster position="top-right" reverseOrder={false} />
       <Router>
         <Routes>
-        
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
+          {/* Protected Chat Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/chat" element={<HomePage />} />
             <Route path="/user-profile" element={<UserDetail />} />
             <Route path="/help" element={<Help/>}/>
             <Route path="/status" element={<Status />} />
             <Route path="/setting" element={<Settings />} />
           </Route>
 
-            <Route element={<PublicRoute />}>
+          {/* Guest Only Routes */}
+          <Route element={<PublicRoute />}>
             <Route path="/user-login" element={<Login />} />
           </Route>
 
-           <Route path="*" element={<NotFound/>} />
+          <Route path="*" element={<NotFound/>} />
         </Routes>
       </Router>
     </>

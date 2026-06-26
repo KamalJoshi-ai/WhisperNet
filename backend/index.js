@@ -16,7 +16,7 @@ const chatRoute = require("./routes/chatRoute");
 const initializeSocket = require('./services/socketService')
 //Middleware
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, 
+  windowMs: 3 * 60 * 1000, 
   max: 100, 
   message: {
     success: false,
@@ -29,7 +29,7 @@ app.set("trust proxy", 1);
 app.use(limiter);
 
 app.use(express.json());//convert json to js object 
-
+ 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
   // If the form sends: name=Raj&age=19

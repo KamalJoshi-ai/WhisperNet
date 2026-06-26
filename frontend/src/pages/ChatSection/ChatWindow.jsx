@@ -1,7 +1,7 @@
 import { FaLock } from "react-icons/fa";
+import { AiFillLayout } from "react-icons/ai";
 import useThemeStore from "../../store/themeStore";
 import useOutsideClick from "../../hooks/useOutsideClick";
-import WhatsappImage from "../../images/WhatsappImage.png";
 
 import { useChatWindow } from "./useChatWindow";
 import ChatHeader from "./ChatHeader";
@@ -40,19 +40,31 @@ const ChatWindow = ({ selectedContact, setSelectedContact }) => {
   //this selecetedConact cant be put before hooks before it disrupts the hook order of react
   if (!selectedContact) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center mx-auto h-screen text-center">
+      <div className="flex flex-1 flex-col items-center justify-center mx-auto h-screen text-center px-4">
         <div className="max-w-md">
-          <img src={WhatsappImage} alt="chat-app" className="h-auto w-full" />
-          <h2 className={`text-3xl font-semibold mb-4 ${theme === "dark" ? "text-white" : "text-black"}`}>
-            Select a conversation to start chatting
+          <div className="flex justify-center mb-8">
+            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center shadow-xl transition-all ${
+              theme === "dark" 
+                ? "bg-slate-900/60 border border-slate-800 text-green-400 shadow-green-500/5" 
+                : "bg-green-50 border border-green-200 text-green-600 shadow-green-600/5"
+            }`}>
+              <AiFillLayout size={44} />
+            </div>
+          </div>
+          <h2 className={`text-3xl font-extrabold mb-4 tracking-tight ${theme === "dark" ? "text-white" : "text-zinc-900"}`}>
+            WhisperNet — Fast & Secure Chat
           </h2>
-          <p className={`mb-6 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-            Choose a contact from the list to start messaging
+          <p className={`mb-8 text-sm leading-relaxed ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>
+            Select a conversation from the sidebar list or search for friends to start messaging instantly.
           </p>
-          <p className={`mt-8 text-sm flex items-center justify-center gap-2 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-            <FaLock className="h-4 w-4" />
-            Your personal messages are end to end encrypted
-          </p>
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-semibold ${
+            theme === "dark"
+              ? "bg-[#00C853]/5 border-[#00C853]/20 text-[#00E676]"
+              : "bg-green-50 border-green-200 text-green-700"
+          }`}>
+            <FaLock className="h-3.5 w-3.5" />
+            <span>End-to-End Encryption Enabled</span>
+          </div>
         </div>
       </div>
     );

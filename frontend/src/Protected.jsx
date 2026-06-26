@@ -37,7 +37,7 @@ export const PublicRoute = () => {
   </div>
  }
  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/chat" replace />;
   }
 
   return <Outlet />;

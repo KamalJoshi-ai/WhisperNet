@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { AiFillLayout } from "react-icons/ai";
 
 import useThemeStore from "../../store/themeStore";
 import useUserStore from "../../store/useUserStore";
@@ -15,7 +16,6 @@ import {
   profileValidationSchema,
 } from "./loginSchemas";
 
-import WhatsAppIcon from "../components/WhatsAppIcon";
 import ProgressBar from "../components/ProgressBar";
 import Step1Login from "../components/Step1";
 import Step2OTP from "../components/Step2";
@@ -134,8 +134,8 @@ const Login = () => {
         
         if (user?.username && user?.ProfilePicture) {
           setUser(user);
-          toast.success("Welcome back to Talkio");
-          navigate("/");
+          toast.success("Welcome back to WhisperNet");
+          navigate("/chat");
           resetLoginState();
         } else {
           setStep(3);
@@ -163,8 +163,8 @@ const Login = () => {
 
       await updateUserProfile(formData);
 
-      toast.success("Welcome to Talkio");
-      navigate("/");
+      toast.success("Welcome to WhisperNet");
+      navigate("/chat");
       resetLoginState();
     } catch (error) {
       toast.error("Failed to update profile");
@@ -201,10 +201,14 @@ const Login = () => {
           ${loading ? " pointer-events-none" : ""}
         `}
       >
-        <WhatsAppIcon />
+        <div className="flex justify-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-[#00C853] flex items-center justify-center shadow-lg shadow-[#00C853]/20">
+            <AiFillLayout className="text-[#0B0F17] w-8 h-8" />
+          </div>
+        </div>
 
-        <h1 className="text-2xl font-semibold text-center mb-4 tracking-wide">
-          Talkio Login
+        <h1 className="text-2xl font-black text-center mb-4 tracking-tight text-white">
+          WhisperNet Login
         </h1>
 
         <ProgressBar step={step} theme={theme} />

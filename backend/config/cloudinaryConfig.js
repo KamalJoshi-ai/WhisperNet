@@ -54,7 +54,14 @@ const uploadToCloudinary = (file) => {
   });
 };
 
-const multerMiddleware = multer({ dest: "uploads/" }).single("media");
+const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7 MB
+
+const multerMiddleware = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+  },
+}).single("media");
 
 module.exports = {
   uploadToCloudinary,
