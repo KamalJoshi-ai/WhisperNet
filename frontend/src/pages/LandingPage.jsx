@@ -6,7 +6,6 @@ import {
   FiImage, 
   FiLayers, 
   FiSmartphone, 
-  FiLock, 
   FiArrowRight, 
   FiGithub, 
   FiTwitter, 
@@ -25,9 +24,9 @@ import useUserStore from "../store/useUserStore";
 
 const features = [
   {
-    title: "End-to-End Encryption",
-    description: "Every whisper is encrypted. Your conversations are private and only readable by the sender and recipient.",
-    icon: FiLock,
+    title: "Interactive Statuses",
+    description: "Share updates and check active statuses. Stay connected with real-time user online indicators and stories.",
+    icon: FiLayers,
     glowColor: "group-hover:shadow-lime-500/10 border-lime-500/20"
   },
   {
@@ -48,11 +47,6 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useUserStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Encryption Demo States
-  const [plainText, setPlainText] = useState("");
-  const [encMode, setEncMode] = useState("binary"); // binary | mock_aes | hex
-  const [copied, setCopied] = useState(false);
 
   // Live Chat Preview Mock Messages
   const [chatMessages, setChatMessages] = useState([
@@ -79,7 +73,7 @@ export default function LandingPage() {
         setTypingUser("");
         setChatMessages(prev => [
           ...prev,
-          { sender: "Kaiser12", text: "That is because of the Socket.io WebSocket connections! E2E encryption is also active. 🔐", time: "12:06" }
+          { sender: "Kaiser12", text: "That is because of the Socket.io WebSocket connections! Fast file sharing is also active. ⚡", time: "12:06" }
         ]);
       }, 5500);
 
@@ -121,43 +115,6 @@ export default function LandingPage() {
     };
   }, []);
 
-  // Encrypter Helper
-  const getEncryptedText = () => {
-    if (!plainText) return "Waiting for plain text inputs...";
-    
-    if (encMode === "binary") {
-      return plainText
-        .split("")
-        .map(char => char.charCodeAt(0).toString(2).padStart(8, "0"))
-        .join(" ");
-    }
-    
-    if (encMode === "mock_aes") {
-      let hash = "";
-      const seed = "whispernet_secret_salt_99x";
-      for (let i = 0; i < plainText.length; i++) {
-        const charCode = plainText.charCodeAt(i) ^ seed.charCodeAt(i % seed.length);
-        hash += charCode.toString(16).padStart(2, "0");
-      }
-      return `ENC_AES256::[${hash.toUpperCase()}]`;
-    }
-
-    if (encMode === "hex") {
-      return plainText
-        .split("")
-        .map(char => char.charCodeAt(0).toString(16).toUpperCase())
-        .join(" ");
-    }
-
-    return plainText;
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(getEncryptedText());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div className="min-h-screen bg-[#0B0F17] text-slate-100 selection:bg-[#00C853]/30 selection:text-lime-200 overflow-x-hidden font-sans relative">
       
@@ -182,7 +139,6 @@ export default function LandingPage() {
           {/* Nav Links */}
           <div className="hidden md:flex items-center gap-10 text-xs font-bold uppercase tracking-wider text-slate-400">
             <a href="#features" className="hover:text-[#00E676] transition-colors">Features</a>
-            <a href="#demo" className="hover:text-[#00E676] transition-colors">Encryption Sandbox</a>
             <a href="#custom-section" className="hover:text-[#00E676] transition-colors">Workspace</a>
           </div>
 
@@ -230,13 +186,6 @@ export default function LandingPage() {
               className="text-base font-bold text-slate-400 hover:text-[#00E676] transition-colors"
             >
               Features
-            </a>
-            <a 
-              href="#demo" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-bold text-slate-400 hover:text-[#00E676] transition-colors"
-            >
-              Encryption Sandbox
             </a>
             <a 
               href="#custom-section" 
@@ -289,7 +238,7 @@ export default function LandingPage() {
             {/* Tagline Pill */}
             <div className="inline-flex items-center gap-2.5 self-start bg-[#00C853]/10 border border-[#00C853]/30 text-[#00E676] text-xs font-semibold px-4.5 py-2.5 rounded-full mb-8 shadow-sm">
               <FiActivity className="w-3.5 h-3.5 animate-pulse" />
-              Now Active: Realtime Encrypted Chat
+              Now Active: Realtime Secure Chat
             </div>
 
             {/* Headline */}
@@ -302,7 +251,7 @@ export default function LandingPage() {
 
             {/* Description */}
             <p className="text-slate-400 text-base md:text-lg mb-12 leading-relaxed max-w-xl">
-              WhisperNet is a next-generation real-time chat dashboard built with end-to-end security parameters. Send instant texts, check user statuses, and exchange files under a beautiful glassmorphic deck.
+              WhisperNet is a next-generation real-time chat dashboard built with custom security parameters. Send instant texts, check user statuses, and exchange files under a beautiful glassmorphic deck.
             </p>
 
             {/* Actions */}
@@ -324,7 +273,7 @@ export default function LandingPage() {
             {/* Status indicator */}
             <p className="text-slate-500 text-xs flex items-center gap-2 font-semibold">
               <span className="w-2.5 h-2.5 rounded-full bg-[#00C853] animate-ping" />
-              100% Encrypted transactions & zero tracker cookies.
+              100% Private transactions & zero tracker cookies.
             </p>
           </div>
 
@@ -535,93 +484,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── ENCRYPTED MESSAGING SANDBOX ─── */}
-      <section id="demo" className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-slate-900">
-        <div className="bg-[#0F1424] border border-slate-800 rounded-3xl p-8 md:p-12 relative overflow-hidden">
-          
-          {/* Internal Glow */}
-          <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-[#00C853]/5 blur-[80px] pointer-events-none -z-10" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left side: Intro text */}
-            <div className="lg:col-span-5 text-left">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#00E676] mb-3 block">
-                Interactive Showcase
-              </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-white">
-                How is your whisper encrypted?
-              </h2>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                Type any message in the widget to watch how WhisperNet intercepts inputs and converts plain characters into cryptographic bitstreams. 
-              </p>
-
-              {/* Mode Selector pills */}
-              <div className="flex gap-2 p-1.5 bg-[#0B0F17] rounded-xl border border-slate-800 self-start inline-flex">
-                <button 
-                  onClick={() => setEncMode("binary")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    encMode === "binary" ? "bg-[#00C853] text-[#0B0F17]" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  Binary Bits
-                </button>
-                <button 
-                  onClick={() => setEncMode("mock_aes")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    encMode === "mock_aes" ? "bg-[#00C853] text-[#0B0F17]" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  AES Cipher
-                </button>
-                <button 
-                  onClick={() => setEncMode("hex")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    encMode === "hex" ? "bg-[#00C853] text-[#0B0F17]" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  Hex Hash
-                </button>
-              </div>
-            </div>
-
-            {/* Right side: Interactive Widget */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Plain Text Input</label>
-                <textarea
-                  value={plainText}
-                  onChange={(e) => setPlainText(e.target.value)}
-                  placeholder="Type a secret message here..."
-                  maxLength={100}
-                  className="w-full bg-[#0B0F17] border border-slate-800 rounded-2xl px-5 py-4 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#00C853] focus:ring-1 focus:ring-[#00C853]/20 transition-all resize-none h-24"
-                />
-              </div>
-
-              <div className="space-y-2 relative">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block flex justify-between">
-                  <span>Encrypted Whisper Stream</span>
-                  {plainText && (
-                    <button 
-                      onClick={handleCopy}
-                      className="text-[#00E676] hover:text-[#00C853] transition-colors capitalize text-[9px] cursor-pointer"
-                    >
-                      {copied ? "Copied!" : "Copy Stream"}
-                    </button>
-                  )}
-                </label>
-                <div className="w-full bg-[#070A10] border border-slate-800 rounded-2xl p-5 min-h-[96px] relative font-mono text-[11px] leading-relaxed break-all text-lime-400 shadow-inner flex items-center">
-                  <div className="w-full">
-                    {getEncryptedText()}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
       {/* ─── DUAL COLUMN INTERACTIVE SHOWCASE ─── */}
       <section id="custom-section" className="max-w-7xl mx-auto px-6 md:px-12 my-12">
         <div className="rounded-[32px] bg-[#0F1424] text-white p-8 md:p-14 shadow-2xl border border-slate-800 relative overflow-hidden">
@@ -634,7 +496,7 @@ export default function LandingPage() {
                 <span className="italic font-serif font-normal text-[#00E676]">Chats</span> with Confidence
               </h2>
               <p className="text-slate-400 text-sm mb-8 leading-relaxed max-w-sm">
-                Create secure connections with our fully responsive real-time client. Send instant images, documents, and messaging ciphers.
+                Create secure connections with our fully responsive real-time client. Send instant images, documents, and messaging logs.
               </p>
 
               <div className="flex flex-col gap-3 max-w-sm">
@@ -739,7 +601,7 @@ export default function LandingPage() {
 
           {/* Center Copyright */}
           <p className="text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} WhisperNet Inc. All rights reserved. Encrypted end-to-end communication.
+            &copy; {new Date().getFullYear()} WhisperNet Inc. All rights reserved. Fast and secure real-time communication.
           </p>
 
           {/* Right Social Links */}
@@ -747,7 +609,6 @@ export default function LandingPage() {
             <a href="https://github.com/KamalJoshi-ai/WhisperNet" className="hover:text-[#00E676] transition-colors" aria-label="GitHub">
               <FiGithub className="w-5 h-5" />
             </a>
-            
           </div>
         </div>
       </footer>
