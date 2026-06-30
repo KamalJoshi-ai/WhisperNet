@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import useThemeStore from "../../store/themeStore";
 import { logoutUser } from "../../services/user.service";
 import useUserStore from "../../store/useUserStore";
+import useLoginStore from "../../store/useLoginStore";
+import useLayoutStore from "../../store/layoutStore";
 import { toast } from "react-hot-toast";
 import Layout from "../../pages/components2/Layout";
 import { Link } from "react-router-dom";
@@ -23,7 +25,17 @@ const Settings = () => {
     setLoggingOut(true);
     try {
       await logoutUser();
+      
+      // Reset stores in-memory
       clearUser();
+      useLoginStore.getState().resetLoginState();
+      useLayoutStore.setState({ activeTab: "chats", selectedContact: null });
+
+      // Explicitly delete store keys from localStorage (except theme-storage)
+      localStorage.removeItem("user-storage");
+      localStorage.removeItem("login-storage");
+      localStorage.removeItem("layout-storage");
+
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Failed to logout", error);

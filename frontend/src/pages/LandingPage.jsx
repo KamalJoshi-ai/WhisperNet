@@ -273,7 +273,7 @@ export default function LandingPage() {
             {/* Status indicator */}
             <p className="text-slate-500 text-xs flex items-center gap-2 font-semibold">
               <span className="w-2.5 h-2.5 rounded-full bg-[#00C853] animate-ping" />
-              100% Private transactions & zero tracker cookies.
+              100% Private transactions.
             </p>
           </div>
 
