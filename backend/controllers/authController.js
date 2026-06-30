@@ -144,8 +144,12 @@ const updateProfile = async(req,res)=>{
 
 const logout = async (req,res)=>{
   try {
-res.clearCookie("authToken", {
+
+
+    res.clearCookie("authToken", {
   httpOnly: true,
+      sameSite: "none",
+      secure: true
 });
     return response(res,200,"user logout successfully")
   } catch (error) {
