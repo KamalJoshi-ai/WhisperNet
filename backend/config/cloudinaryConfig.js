@@ -2,6 +2,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const path = require("path");
+const { Readable } = require("stream");
 require("dotenv").config();
 
 cloudinary.config({
@@ -26,12 +27,13 @@ const uploadToCloudinary = (file) => {
     const mainType = file.mimetype.split("/")[0];
 
     if (!allowedTypes.includes(mainType)) {
-      fs.unlink(file.path, () => {});
-      return reject(new Error("Only images, videos, and documents are allowed"));
+      return reject(
+        new Error("Only images, videos, and documents are allowed")
+      );
     }
 
     const isRaw = mainType === "application" || mainType === "text";
-    const fileExtension = path.extname(file.originalname).replace(".", "");
+    const extension = path.extname(file.originalname).slice(1);
 
     const options = {
       resource_type: isRaw ? "raw" : "auto",
@@ -43,21 +45,25 @@ const uploadToCloudinary = (file) => {
     } else {
       options.use_filename = true;
       options.unique_filename = false;
-      options.format = fileExtension.toLowerCase();
+      options.format = extension.toLowerCase();
     }
-      //resource_type decides the pipeline and options decides the settings after entering in that pipeline
-    cloudinary.uploader.upload(file.path, options, (error, result) => {
-      fs.unlink(file.path, () => {});
-      if (error) return reject(error);
-      resolve(result);
-    });
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    Readable.from(file.buffer).pipe(uploadStream);
   });
 };
 
 const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7 MB
 
 const multerMiddleware = multer({
-  dest: "uploads/",
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: MAX_FILE_SIZE,
   },
