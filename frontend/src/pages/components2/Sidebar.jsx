@@ -9,7 +9,7 @@ import { FaCog, FaUser, FaSun, FaMoon, FaChevronLeft, FaChevronRight } from "rea
 import { AiFillLayout } from "react-icons/ai";
 
 const NAV_ITEMS = [
-  { tab: "chats",   icon: <AiFillLayout size={20} />,     label: "Chats",    to: "/" },
+  { tab: "chats",   icon: <AiFillLayout size={20} />,     label: "Chats",    to: "/chat" },
   { tab: "status",  icon: <IoRadioButtonOn size={20} />,  label: "Status",   to: "/status" },
   { tab: "profile", icon: <FaUser size={20} />,           label: "Profile",  to: "/user-profile" },
   { tab: "setting", icon: <FaCog size={20} />,            label: "Settings", to: "/setting" },

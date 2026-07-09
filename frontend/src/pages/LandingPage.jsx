@@ -8,13 +8,11 @@ import {
   FiSmartphone, 
   FiArrowRight, 
   FiGithub, 
-  FiTwitter, 
-  FiInstagram, 
+   
   FiMessageSquare, 
   FiSend,
   FiActivity,
   FiUploadCloud,
-  FiFileText,
   FiCheckCircle,
   FiMenu,
   FiX
@@ -493,7 +491,7 @@ export default function LandingPage() {
             {/* Left Column: Features info */}
             <div className="lg:col-span-5 text-left flex flex-col justify-center">
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 leading-tight">
-                <span className="italic font-serif font-normal text-[#00E676]">Chats</span> with Confidence
+                <span className="italic font-serif font-normal text-[#00E676]"></span> with Confidence
               </h2>
               <p className="text-slate-400 text-sm mb-8 leading-relaxed max-w-sm">
                 Create secure connections with our fully responsive real-time client. Send instant images, documents, and messaging logs.
